@@ -1,0 +1,32 @@
+This project  is Freelancer platform name is GigSphere like upwork and fiverr
+the project has following roles
+ 1. client
+ 2. seller
+ 3.admin
+ 4.moderator
+ 5.dispute manager
+
+ 1. The client can publish a post for his project and he can hire a Freelancer for his particular project and he can also interact with other chat with Freelancer using GigSphere premium.
+ The client can also personaly hire a freelancer for his project using his profile.
+
+ 2. Seller is the freelancer and he can publish his new projects and portfolio for increase his profile reach and he can only post 20 posts in the free tier plan. he can also cutomize his profile like linkedin by adding his location,bio,portfolio and etc. But in free tier you can become seller only for 1 month and the admin get 20% income of your project.
+
+ 3. The admin can do any thing from deactivate a account to create a account and change the website ui design.
+
+ And the other roles can do his tasks according to his assingned name and work.
+
+ premium;-
+
+ The GigSphere premium has following features;-
+
+ publish unlimted post
+ chat with any freelancer
+ can become a seller for full time
+ 1 month free trial 
+ the price is 2000 rupies
+ and others
+
+ Payment:-
+
+ The admin get 20% income of the project of the seller,
+ The admin can see his all project income and all clients and all managers and all sellers and the sellers income and project and client projects and incomes and everything he can see.

@@ -1,0 +1,6 @@
+Make the website responsive and do not use the very large texts 
+on the hero sections
+
+use the public images for show the imges.
+
+use the minimal ui desing usign material ui design

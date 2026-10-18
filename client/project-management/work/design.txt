@@ -1,0 +1,10 @@
+Create the simple mininmal design for the project using material ui.
+
+like on the top bar show a Appbar and after show a crousel for advertisement. and after show the client posts and freelancer posts and after that the top freelancer in marque tag then footer section.
+
+the visitor can like the post and share the post and see the like count
+
+the client and the seller can recive the notification when a user like his post and the without logged user can not like the post.
+
+Also create a single page for the particular project or post where the client and the seller can see the complete discription of the project
+ 

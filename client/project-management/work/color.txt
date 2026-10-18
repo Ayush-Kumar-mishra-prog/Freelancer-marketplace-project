@@ -1,0 +1,3 @@
+The color for the GigSphere project is blue for buttons and for text color use slate-800 to 900 and the background color is very light blue or slate-100
+
+use the react icons and lucide react for apply the icons in the project
