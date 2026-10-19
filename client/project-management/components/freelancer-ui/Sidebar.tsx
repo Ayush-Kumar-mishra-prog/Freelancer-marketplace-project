@@ -3,20 +3,22 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Home, Settings, User, FileText, LayoutDashboard } from "lucide-react";
+import { Menu, X, Home, Settings, User, FileText, LayoutDashboard, BellIcon } from "lucide-react";
 import { NavItem } from "@/types/nav";
 
-const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
-  { label: "Home", href: "/", icon: Home },
-  { label: "Clients", href: "/client/profile", icon: User },
-  { label: "Projects", href: "/client/posts", icon: FileText },
-  { label: "Settings", href: "/client/settings", icon: Settings },
-];
+
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+
+  const navItems: NavItem[] = [
+  { label: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
+  { label: "Notifications", href: "/client/notifications", icon: BellIcon },
+  { label: "Clients", href: "/client/profile", icon: User },
+  { label: "Projects", href: "/client/posts", icon: FileText },
+  { label: "Settings", href: "/client/settings", icon: Settings },
+];
 
   // Close sidebar automatically on route change (mobile)
   useEffect(() => {
