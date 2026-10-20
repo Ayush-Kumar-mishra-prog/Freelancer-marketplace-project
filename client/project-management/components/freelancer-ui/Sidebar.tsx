@@ -14,7 +14,7 @@ export default function Sidebar() {
 
   const navItems: NavItem[] = [
   { label: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
-  { label: "Notifications", href: "/client/notifications", icon: BellIcon },
+  { label: "Notifications", href: "/admin/notifications", icon: BellIcon },
   { label: "Clients", href: "/client/profile", icon: User },
   { label: "Projects", href: "/client/posts", icon: FileText },
   { label: "Settings", href: "/client/settings", icon: Settings },

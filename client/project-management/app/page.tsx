@@ -27,7 +27,7 @@ const slides = [
     eyebrow: "A little more room to grow",
     title: "Make more space for great work.",
     description: "Go Premium for unlimited posts, freelancer chat, and a full-time seller membership.",
-    image: "/a2bfb910-5e4b-478f-903c-b3695ee44735.jfif",
+    image: "/bg.png",
     action: "Explore Premium",
   },
 ];

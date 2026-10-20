@@ -10,7 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Pagination from '@mui/material/Pagination';
 import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
-import {Stack} from '@mui/material';
+import {Avatar, Stack} from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -19,6 +19,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
+import { deepOrange, deepPurple } from '@mui/material/colors';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Edit2, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useDialogs } from '@/hooks/useDialogs/useDialogs';
@@ -180,7 +181,7 @@ export default function EmployeeList() {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>ID</TableCell>
+                      <TableCell>Avatar</TableCell>
                       <TableCell>Name</TableCell>
                       <TableCell>Age</TableCell>
                       <TableCell>Join date</TableCell>
@@ -192,7 +193,9 @@ export default function EmployeeList() {
                   <TableBody>
                     {dummyData.map((employee) => (
                       <TableRow key={employee.id} hover>
-                        <TableCell>{employee.id}</TableCell>
+                        <TableCell><Avatar sx={{ bgcolor: deepPurple[500] }}>
+                          {employee.name.charAt(0).toUpperCase()}
+                          </Avatar></TableCell>
                         <TableCell>
                           <Button
                             onClick={() =>
