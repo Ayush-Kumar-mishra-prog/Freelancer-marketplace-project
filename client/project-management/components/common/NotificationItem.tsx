@@ -54,7 +54,7 @@ export default function NotificationItem({ notification, onDelete }: Props) {
         type="button"
         onClick={() => onDelete(id)}
         aria-label={`Delete notification from ${name}`}
-        className="shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500"
+        className="shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline  focus-visible:outline-red-500"
       >
         Delete
       </button>

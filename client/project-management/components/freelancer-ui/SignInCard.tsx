@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import { Button } from "@/untitledui/base/buttons/button";
 import MuiCard from '@mui/material/Card';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
@@ -188,7 +188,7 @@ export default function SignInCard() {
         </FormControl>
         
         <ForgotPassword open={open} handleClose={handleClose} />
-        <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
+        <Button type="submit" className='bg-purple-600' onClick={validateInputs}>
           {
                 tab ==="login" ? "Sign In":"Sign Up"
             }
@@ -197,19 +197,18 @@ export default function SignInCard() {
       </Box>
       <Divider>or</Divider>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Button
-          fullWidth
-          variant="outlined"
+        <Button className='bg-blue-500'
+          
           onClick={() => alert('Sign in with Google')}
-          startIcon={<FcGoogle />}
+          iconLeading={<FcGoogle />}
+          
         >
           Sign in with Google
         </Button>
         <Button
-          fullWidth
-          variant="outlined"
+         className='bg-lime-700'
           onClick={() => alert('Sign in with Facebook')}
-          startIcon={<FaFacebook />}
+          iconLeading={<FaFacebook />}
         >
            Sign in with Facebook
         </Button>

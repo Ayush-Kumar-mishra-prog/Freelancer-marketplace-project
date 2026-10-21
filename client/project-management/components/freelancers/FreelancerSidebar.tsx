@@ -13,12 +13,13 @@ export default function FreelancerSidebar() {
   const pathname = usePathname();
 
   const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
-  { label: "Notifications", href: "/admin/notifications", icon: BellIcon },
-  { label: "Clients", href: "/client/profile", icon: User },
-  { label: "Projects", href: "/client/posts", icon: FileText },
-  { label: "Payments", href: "/client/posts", icon: IndianRupee },
-  { label: "Settings", href: "/client/settings", icon: Settings },
+  { label: "Dashboard", href: "/freelancers/dashboard", icon: LayoutDashboard },
+  { label: "Notifications", href: "/freelancers/notifications", icon: BellIcon },
+  { label: "Clients", href: "/freelancers/allClients", icon: User },
+  { label: "Profile", href: "/freelancers/profile", icon: User },
+  { label: "Projects", href: "/freelancers/posts", icon: FileText },
+  { label: "Payments", href: "/freelancers/payments", icon: IndianRupee },
+  { label: "Settings", href: "/freelancers/settings", icon: Settings },
 ];
 
   // Close sidebar automatically on route change (mobile)

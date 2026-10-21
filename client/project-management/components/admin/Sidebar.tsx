@@ -12,13 +12,12 @@ export default function SidebarAdmin() {
   const navItems: NavItem[] = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Employees", href: "/admin/employees", icon: UsersIcon },
-  { label: "Notifications", href: "/client/notifications", icon: BellIcon },
-  { label: "Clients", href: "/client/profile", icon: User },
-  { label: "Projects", href: "/client/posts", icon: FileText },
-  {label: "Freelancers", href: "/client/posts", icon: UsersIcon},
-  {label: "Payments", href: "/client/posts", icon: IndianRupeeIcon},
-  {label: "Moderator", href: "/client/posts", icon: UsersIcon},
-  { label: "Settings", href: "/client/settings", icon: Settings },
+  { label: "Notifications", href: "/admin/notifications", icon: BellIcon },
+  { label: "Clients", href: "/admin/clients", icon: User },
+  { label: "Projects", href: "/admin/projects", icon: FileText },
+  {label: "Freelancers", href: "/admin/freelancer", icon: UsersIcon},
+  {label: "Payments", href: "/admin/payments", icon: IndianRupeeIcon},
+  { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
   // Close sidebar automatically on route change (mobile)
