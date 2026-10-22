@@ -23,6 +23,7 @@
     "@tiptap/react": "^2.27.3",
     "@tiptap/starter-kit": "^2.27.3",
     "@untitledui/icons": "^0.0.23",
+    "axios": "^1.20.0",
     "dayjs": "^1.11.23",
     "lowlight": "^3.3.0",
     "lucide-react": "^1.42.0",
