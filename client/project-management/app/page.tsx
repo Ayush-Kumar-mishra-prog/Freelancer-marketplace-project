@@ -7,6 +7,7 @@ import { Avatar, Button, Chip } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { dummyPost } from "@/components/admin/data/dummypost/dummyPost";
 
 const slides = [
   {
@@ -117,12 +118,12 @@ function ProjectSection({
   eyebrow,
   title,
   description,
-  projects,
+  projects
 }: {
   eyebrow: string;
   title: string;
   description: string;
-  projects: typeof clientProjects;
+  projects: typeof dummyPost;
 }) {
   return (
     <section className="py-14 sm:py-16">
@@ -139,14 +140,14 @@ function ProjectSection({
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
           <ShowCase
-            key={project.projectId}
-            projectId={project.projectId}
-            name={project.name}
-            sortdis={project.summary}
-            moredis={project.description}
-            avt={project.ownName.split(" ").map((part) => part[0]).join("").slice(0, 2)}
-            imag={project.image}
-            nametitle={project.ownName}
+            key={project.id}
+            id={project.id}
+            nameOfProject={project.nameOfProject}
+            sortDiscription={project.sortDiscription}
+            fullDiscription={project.fullDiscription}
+            avt={project.userName.split(" ").map((part) => part[0]).join("").slice(0, 2)}
+            image={project.image}
+            userName={project.userName}
             date={project.date}
             likes={project.likes}
           />
@@ -233,15 +234,15 @@ export default function HomePage() {
             eyebrow="Opportunities"
             title="Projects from clients"
             description="Thoughtful briefs from people looking for the right creative partner."
-            projects={clientProjects}
+            projects={dummyPost}
           />
           <div className="border-t border-slate-200">
-            <ProjectSection
+            {/* <ProjectSection
               eyebrow="Community work"
               title="Made by freelancers"
               description="Discover the latest work, ideas, and portfolios from independent talent."
               projects={freelancerProjects}
-            />
+            /> */}
           </div>
         </div>
 

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { dummyPostType } from "../admin/data/dummypost/dummyPost";
 
 interface ShowCaseProps {
   name: string;
@@ -21,16 +22,19 @@ interface ShowCaseProps {
 }
 
 export default function ShowCase({
-  name,
-  sortdis,
-  moredis,
+  nameOfProject,
+  sortDiscription,
+  fullDiscription,
   avt,
-  imag,
-  nametitle,
+  image,
+  userName,
   date,
-  projectId,
-  likes = 24,
-}: ShowCaseProps) {
+  id,
+  likes,
+  cost,
+  status,
+  projectLink
+}: dummyPostType) {
   const [liked, setLiked] = useState(false);
   const [shareLabel, setShareLabel] = useState("");
   const { checkLogin } = useAuth();
@@ -46,7 +50,7 @@ export default function ShowCase({
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/projects/${projectId}`);
+      await navigator.clipboard.writeText(`${window.location.origin}/projects/${id}`);
       setShareLabel("Link copied");
       window.setTimeout(() => setShareLabel(""), 1800);
     } catch {
@@ -68,11 +72,11 @@ export default function ShowCase({
         "&:hover": { transform: "translateY(-3px)", boxShadow: "0 16px 38px rgba(15, 23, 42, .08)" },
       }}
     >
-      <Link href={`/projects/${projectId}`} className="block">
+      <Link href={`/projects/${id}`} className="block">
         <Box sx={{ position: "relative", height: { xs: 190, sm: 205 }, bgcolor: "#eff6ff" }}>
           <Image
-            src={imag}
-            alt={name}
+            src={image}
+            alt={nameOfProject}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
@@ -86,23 +90,23 @@ export default function ShowCase({
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.8 }}>
           <Avatar sx={{ width: 37, height: 37, bgcolor: "#dbeafe", color: "#1d4ed8", fontSize: 14, fontWeight: 700 }}>{avt}</Avatar>
           <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ color: "#0f172a", fontSize: 13, fontWeight: 700 }}>{nametitle}</Typography>
+            <Typography sx={{ color: "#0f172a", fontSize: 13, fontWeight: 700 }}>{userName}</Typography>
             <Typography sx={{ color: "#64748b", fontSize: 12 }}>{date}</Typography>
           </Box>
           <Box sx={{ ml: "auto", display: "flex", alignItems: "center", color: "#64748b", gap: 0.5, fontSize: 12 }}>
             <MapPin size={14} /> Remote
           </Box>
         </Box>
-        <Link href={`/projects/${projectId}`} className="no-underline">
+        <Link href={`/projects/${id}`} className="no-underline">
           <Typography component="h3" sx={{ color: "#0f172a", fontWeight: 750, fontSize: 17, lineHeight: 1.35, mb: 0.8, "&:hover": { color: "#2563eb" } }}>
-            {name}
+            {nameOfProject}
           </Typography>
         </Link>
         <Typography sx={{ color: "#64748b", fontSize: 13.5, lineHeight: 1.7, minHeight: 46 }}>
-          {sortdis}
+          {sortDiscription}
         </Typography>
         <Typography sx={{ mt: 1.4, color: "#2563eb", fontSize: 13, fontWeight: 700 }}>
-          {moredis.split(" ").slice(0, 4).join(" ")}...
+          {fullDiscription.split(" ").slice(0, 4).join(" ")}...
         </Typography>
       </CardContent>
       <CardActions sx={{ px: 2.2, py: 1.4, borderTop: "1px solid #f1f5f9", gap: 0.5 }}>
@@ -112,13 +116,13 @@ export default function ShowCase({
           startIcon={<Heart size={17} fill={liked ? "currentColor" : "none"} />}
           sx={{ color: liked ? "#e11d48" : "#64748b", textTransform: "none", fontSize: 13, fontWeight: 650, minWidth: 0 }}
         >
-          {likes + (liked ? 1 : 0)}
+          {likes}
         </Button>
-        <IconButton onClick={handleShare} aria-label={`Share ${name}`} size="small" sx={{ color: "#64748b", ml: 0.3 }}>
+        <IconButton onClick={handleShare} aria-label={`Share ${userName}`} size="small" sx={{ color: "#64748b", ml: 0.3 }}>
           <Share2 size={17} />
         </IconButton>
         {shareLabel && <Typography role="status" sx={{ color: "#64748b", fontSize: 11 }}>{shareLabel}</Typography>}
-        <Button component={Link} href={`/projects/${projectId}`} endIcon={<ArrowUpRight size={16} />} sx={{ ml: "auto", color: "#2563eb", textTransform: "none", fontWeight: 700, fontSize: 13 }}>
+        <Button component={Link} href={`/projects/${id}`} endIcon={<ArrowUpRight size={16} />} sx={{ ml: "auto", color: "#2563eb", textTransform: "none", fontWeight: 700, fontSize: 13 }}>
           View project
         </Button>
       </CardActions>
