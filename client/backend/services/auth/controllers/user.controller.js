@@ -7,7 +7,7 @@ export const register = async(req,res)=>{
     try {
         
         if(!username || !email || !password || !full_name){
-            return re.status(400).json({message:"All fields are requried"})
+            return res.status(400).json({message:"All fields are requried"})
         }
         const existingUser = await User.findOne({email})
         if(existingUser){
