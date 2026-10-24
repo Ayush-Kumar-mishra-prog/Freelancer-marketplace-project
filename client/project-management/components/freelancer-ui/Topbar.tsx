@@ -2,14 +2,20 @@
 
 import { LogOut, Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function Topbar() {
   const router = useRouter();
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    // Replace with your real logout logic (clear session/cookies/token)
-    localStorage.removeItem("token");
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Logout failed");
+    }
   };
 
   return (

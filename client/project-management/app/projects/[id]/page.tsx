@@ -122,8 +122,8 @@ export default function ProjectDetailPage() {
     isClientPost: true,
   };
 
-  const handleLike = () => {
-    if (!checkLogin()) {
+  const handleLike = async () => {
+    if (!(await checkLogin())) {
       router.push(`/auth?next=/projects/${params.id}`);
       return;
     }

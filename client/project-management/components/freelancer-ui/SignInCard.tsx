@@ -12,6 +12,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function SignInCard() {
   const [emailError, setEmailError] = React.useState(false);
@@ -30,20 +31,28 @@ export default function SignInCard() {
     formState: { errors, isSubmitting },
     reset,
   } = useForm();
-
+const router = useRouter()
   const onSubmit = async (data: any) => {
     try {
       const res = await api.post(
         `/auth/api/v1/auth/${tab === "signUP" ? "register" : "login"}`,
         data,
       );
+      const resUser = await api.get('/auth/api/v1/auth/me')
+      setUser(resUser.data.user)
+      router.push('/')
       console.log(res.data);
+      
       toast.success(res.data.message);
       reset();
     } catch (error: any) {
       toast.error(error.response?.data?.message || error.message);
     }
   };
+
+  React.useEffect(()=>{
+    console.log(user)
+  },[user])
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -168,7 +177,7 @@ export default function SignInCard() {
             })}
           />
 
-          {tab === "signUP" && (
+         <label className="text-slate-800 text-sm">Choose Role</label>
             <select
               {...register("role", { required: "Please select a role" })}
               className="w-full mb-2 p-2 border border-slate-300 rounded-md"
@@ -179,7 +188,7 @@ export default function SignInCard() {
                 </option>
               ))}
             </select>
-          )}
+          
           <ForgotPassword open={open} handleClose={handleClose} />
 
           <Button

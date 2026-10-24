@@ -1,7 +1,7 @@
 "use client";
 
 import api from "@/lib/axios";
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 interface AuthUser {
   name: string;
@@ -16,15 +16,15 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<AuthUser | null>>;
   login: (email: string, password: string, role: string, status: string) => Promise<void>;
   register: (full_name: string, username: string, email: string, password: string, role: string, status: string) => Promise<void>;
-  checkLogin: () => boolean;
-  logout: () => void;
+  checkLogin: () => Promise<boolean>;
+  logout: () => Promise<void>;
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// creating the provider for the context to wrap the application and provide the context to all the components
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
  const [user, setUser] = useState<AuthUser | null>(null);
  const [code, setCode] = useState("");
@@ -53,21 +53,28 @@ const register = async(full_name:String,username:String,email:String,password:St
   }
 
 }
- const checkLogin = ()=>{
-  if(typeof window === "undefined"){
-    return false;
+ const checkLogin = async (): Promise<boolean> => {
+  try {
+    const res = await api.get('/auth/api/v1/auth/me')
+    setUser(res.data.user)
+    return true
+  } catch (error:any) {
+    console.log(error);
+    setUser(null)
+    return false
   }
-    const check = localStorage.getItem("checklogin");
-    if(check === "true"){
-        return true
-    }else{
-        return false
-    }
  }
 
- const logout = ()=>{
-    localStorage.removeItem("checklogin");
-    setUser(null)
+ useEffect(()=>{
+   checkLogin()
+ },[])
+
+ const logout = async () => {
+    try {
+      await api.post('/auth/api/v1/auth/logout')
+    } finally {
+      setUser(null)
+    }
  }
 
   return (

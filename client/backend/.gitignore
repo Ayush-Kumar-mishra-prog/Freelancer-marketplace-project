@@ -1,3 +1,5 @@
 node_modules
 .env
 .npmrc
+/services/auth/private.pem
+/services/auth/public.pem

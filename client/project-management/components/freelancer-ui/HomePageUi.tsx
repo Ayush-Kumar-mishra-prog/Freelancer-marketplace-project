@@ -1,18 +1,70 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/untitledui/base/buttons/button";
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { Menu, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogContentText, 
+  DialogActions 
+} from '@mui/material';
 
 export default function HomePageNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showDashboard,setShowDashboard] = useState("")
+  const [loggedUser,setLoggedUser] = useState(false)
+  const [open, setOpen] = useState(false);
+  const {user, logout} = useAuth()
+  const router = useRouter()
+
+   const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose =async (confirmed:boolean) => {
+    setOpen(false);
+    if (confirmed) {
+      try {
+      await logout()
+      router.push("/")
+      toast.success("Logout successful")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Logout failed")
+    }
+    } else {
+      console.log("Action cancelled.");
+    }
+  };
+
+  const handleLogout = async () => {
+    handleClickOpen()
+
+  }
+
+  useEffect(()=>{
+    if(user){
+      const role = user.role;
+      console.log(role)
+      setLoggedUser(true)
+      setShowDashboard(role)
+    }
+    else{
+      setLoggedUser(false)
+      setShowDashboard("")
+    }
+  },[user])
 
   return (
     <AppBar
@@ -98,28 +150,59 @@ export default function HomePageNavbar() {
         </Box>
 
         <Box sx={{ flex: 1 }} />
-        <Button
-          aria-label="Search projects"
-          href="/#projects"
-          sx={{ minWidth: 40, color: "#475569", display: { xs: "none", sm: "inline-flex" } }}
-        >
-          <Search size={19} />
-        </Button>
-        <Button
-          component={Link}
-          href="/auth"
-          sx={{ color: "#334155", fontWeight: 650, textTransform: "none", display: { xs: "none", sm: "inline-flex" } }}
-        >
-          Log in
-        </Button>
-        <Button
-          component={Link}
-          href="/auth?mode=signup"
-          variant="contained"
-          sx={{ px: 2, py: 1, borderRadius: 2.5, bgcolor: "#2563eb", boxShadow: "none", textTransform: "none", "&:hover": { bgcolor: "#1d4ed8", boxShadow: "none" } }}
-        >
-          Join GigSphere
-        </Button>
+
+        {
+          showDashboard ==="client" && (
+            <Button onClick={()=>router.push('/client/dashboard')} className='bg-purple-600' size="md">Dashboard</Button>
+          )
+        }
+        {
+          showDashboard ==="freelancer" && (
+            <Button onClick={()=>router.push('/freelancer/dashboard')} className='bg-purple-600' size="md">Dashboard</Button>
+          )
+        }
+        {
+          showDashboard ==="moderator" && (
+            <Button onClick={()=>router.push('/moderator/dashboard')} className='bg-purple-600' size="md">Dashboard</Button>
+          )
+        }
+        {
+          showDashboard ==="admin" && (
+            <Button onClick={()=>router.push('/admin/dashboard')} className='bg-purple-600' size="md">Dashboard</Button>
+          )
+        }
+
+        {
+          user ? <Button onClick={()=>handleLogout()} className='bg-red-600' size="md">Logout</Button>:<Button onClick={()=>router.push('/auth')} className='bg-lime-500' size="md">Get Started</Button>
+        }
+
+
+           <Dialog
+        open={open}
+        onClose={() => handleClose(false)}
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
+      >
+        <DialogTitle id="confirm-dialog-title">
+          {"Confirm Deletion"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="confirm-dialog-description">
+            Are you sure you want to Logout from this account
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleClose(false)} className='bg-red-500'>
+            Cancel
+          </Button>
+          <Button onClick={() => handleClose(true)} className='bg-green-500'>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+        
+       
+        
       </Toolbar>
     </AppBar>
   );

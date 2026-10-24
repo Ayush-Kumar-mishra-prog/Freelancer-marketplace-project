@@ -1,12 +1,14 @@
 import express from 'express'
-import { login, logout, register } from '../controllers/user.controller.js'
-import { checkRole, verifyToken } from '@ayush-kumar-mishra-prog/auth'
-import redis from '../redis.js'
+import { banUser, getMe, login, logout, refresh, register } from '../controllers/user.controller.js'
+import { checkRole } from '@ayush-kumar-mishra-prog/auth'
+import verifyToken from '../middleware/verify-token.js'
 
 const router = express.Router()
-const auth = verifyToken(process.env.JWT_PUBLIC_KEY,redis)
+const auth = verifyToken
 router.post('/login', login)
 router.post('/register',register)
-router.post("/logout",auth,logout)
-router.post("/admin/ban/:id",auth,checkRole("admin","moderator"))
+router.post('/refresh', refresh)
+router.get('/me', auth, getMe)
+router.post('/logout', auth, logout)
+router.post('/admin/ban/:id', auth, checkRole("admin", "moderator"), banUser)
 export default router

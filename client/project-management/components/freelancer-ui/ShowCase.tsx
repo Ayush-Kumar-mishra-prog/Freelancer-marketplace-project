@@ -40,8 +40,8 @@ export default function ShowCase({
   const { checkLogin } = useAuth();
   const router = useRouter();
 
-  const handleLike = () => {
-    if (!checkLogin()) {
+  const handleLike = async () => {
+    if (!(await checkLogin())) {
       router.push("/auth?next=/");
       return;
     }
