@@ -4,6 +4,12 @@ import "./globals.css";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { AuthProvider } from "@/context/AuthContext";
 
+                //core css
+import "primeicons/primeicons.css";   
+import Providers from "./providers";
+
+ 
+
 const raleway = Raleway({
   variable: "--font-raleway",
   subsets: ["latin"],
@@ -22,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <AppRouterCacheProvider>
+          <Providers />
           <AuthProvider>{children}</AuthProvider>
         </AppRouterCacheProvider>
       </body>
