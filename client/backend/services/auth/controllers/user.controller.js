@@ -120,6 +120,7 @@ export const login = async (req, res, next) => {
       ...tokens,
     });
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
@@ -222,3 +223,389 @@ export const banUser = async (req, res, next) => {
     next(error);
   }
 };
+
+
+export const createModerator = async(req,res,next)=>{
+   try {
+    const {username,full_name,email,password,isFullTime,status,role} = req.body;
+    const exist = await User.findOne({email})
+    if(exist){
+      throw new AppError(400, "This email is already registered");
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const newEmployee = new User({
+      full_name,
+      username,
+      email,
+      password: hashedPassword,
+      role,
+      status,
+      isFullTime
+    });
+    await newEmployee.save();
+    return res.status(201).json({
+      message: "Employee created successfully",
+      employee: publicUser(newEmployee),
+    });
+   } catch (error) {
+    console.log(error)
+    next(error);
+   }
+}
+
+
+export const getAllModerator = async(req,res,next)=>{
+  try {
+    const page = Math.max(0, Number.parseInt(req.query.page, 10) || 0);
+    const pageSize = Math.min(
+      100,
+      Math.max(1, Number.parseInt(req.query.pageSize, 10) || 10),
+    );
+    const search =
+      typeof req.query.search === "string" ? req.query.search.trim() : "";
+    const filter = { role: "moderator" };
+
+    if (search) {
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const searchPattern = new RegExp(escapedSearch, "i");
+      filter.$or = [
+        { full_name: searchPattern },
+        { username: searchPattern },
+        { email: searchPattern },
+      ];
+    }
+
+    const [users, itemCount] = await Promise.all([
+      User.find(filter)
+        .select("-password")
+        .sort({ createdAt: -1 })
+        .skip(page * pageSize)
+        .limit(pageSize),
+      User.countDocuments(filter),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: users,
+      itemCount,
+    });
+
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+
+export const getSingleModerator = async(req,res,next) =>{
+  try {
+    const {id} = req.params;
+    const moderator =await User.findOne({
+      _id:id,
+      role:"moderator"
+    }).select("-password")
+    if(!moderator){
+      return res.status(404).json({message:"Moderator not found"})
+    }
+    return res.status(200).json({
+      success:true,
+      data:moderator
+    })
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+export const deleteModerator = async(req,res,next)=>{
+  try {
+    const {id} = req.body;
+    if (!mongoose.isValidObjectId(id)) {
+      throw new AppError(400, "Invalid moderator ID");
+    }
+    const moderator = await User.findOneAndDelete({
+      _id:id,
+      role:"moderator"
+    })
+    if(!moderator){
+      return res.status(404).json({message:"Moderator not found"})
+    }
+    return res.status(200).json({message:"Moderator deleted successfully"})
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+
+export const updateModerator = async(req,res,next)=>{
+  try {
+    const {id} = req.params
+    if(!mongoose.isValidObjectId(id)){
+      return res.status(400).json({message:"Not a valid id"})
+    }
+
+    const allowedFields = [
+      "username",
+      "full_name",
+      "status",
+      "isFullTime"
+    ];
+    const updates = {};
+    for (const field of allowedFields){
+      if(req.body[field] !== undefined){
+        updates[field] = req.body[field];
+      }
+    }
+
+    if(Object.keys(updates).length === 0){
+      return res.status(400).json({
+        success:false,
+        message:"No valid fields provided for update"
+      })
+    }
+    const moderator = await User.findOneAndUpdate({
+      _id:id,
+      role:"moderator"
+    },
+    {
+      $set:updates
+    },
+    {
+      new:true,
+      runValidators:true
+    }
+  ).select("-password -refreshToken")
+  if(!moderator){
+    return res.status(404).json({
+      success:false,
+      message:"Moderator not found"
+    })
+  }
+  return res.status(200).json({
+    success:true,
+    message:"Moderator updated successfully",
+    data:moderator,
+  })
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+
+
+export const getAllClients = async(req,res,next)=>{
+  try {
+    const page = Math.max(0, Number.parseInt(req.query.page, 10) || 0);
+    const pageSize = Math.min(
+      100,
+      Math.max(1, Number.parseInt(req.query.pageSize, 10) || 10),
+    );
+    const search =
+      typeof req.query.search === "string" ? req.query.search.trim() : "";
+    const filter = { role: "client" };
+
+    if (search) {
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const searchPattern = new RegExp(escapedSearch, "i");
+      filter.$or = [
+        { full_name: searchPattern },
+        { username: searchPattern },
+        { email: searchPattern },
+      ];
+    }
+
+    const [users, itemCount] = await Promise.all([
+      User.find(filter)
+        .select("-password")
+        .sort({ createdAt: -1 })
+        .skip(page * pageSize)
+        .limit(pageSize),
+      User.countDocuments(filter),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: users,
+      itemCount,
+    });
+
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+export const getSingleClient = async(req,res,next) =>{
+  try {
+    const {id} = req.params;
+    const client =await User.findOne({
+      _id:id,
+      role:"client"
+    }).select("-password")
+    if(!client){
+      return res.status(404).json({message:"Client not found"})
+    }
+    return res.status(200).json({
+      success:true,
+      data:client
+    })
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+export const updateClientStatus = async(req,res,next) =>{
+  try {
+    const {status,id} = req.body;
+    const updatedData = await User.findByIdAndUpdate({
+      _id:id,
+      role:"client"
+    },
+    {
+      $set:{status}
+    },
+    {
+      new:true
+    })
+    if(updatedData){
+      return res.status(200).json({
+        data:updatedData,
+        message:"Client status updated successfully"
+      })
+    }
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+export const getSingleFreelancer = async(req,res,next) =>{
+  try {
+    const {id} = req.params;
+    const freelancer =await User.findOne({
+      _id:id,
+      role:"freelancer"
+    }).select("-password")
+    if(!freelancer){
+      return res.status(404).json({message:"Freelancer not found"})
+    }
+    return res.status(200).json({
+      success:true,
+      data:freelancer
+    })
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+export const updateFreelancerStatus = async(req,res,next) =>{
+  try {
+    const {status,id} = req.body;
+    const updatedData = await User.findByIdAndUpdate({
+      _id:id,
+      role:"freelancer"
+    },
+    {
+      $set:{status}
+    },
+    {
+      new:true
+    })
+    if(updatedData){
+      return res.status(200).json({
+        data:updatedData,
+        message:"Client status updated successfully"
+      })
+    }
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+export const getAllFreelancers = async(req,res,next)=>{
+  try {
+    const page = Math.max(0, Number.parseInt(req.query.page, 10) || 0);
+    const pageSize = Math.min(
+      100,
+      Math.max(1, Number.parseInt(req.query.pageSize, 10) || 10),
+    );
+    const search =
+      typeof req.query.search === "string" ? req.query.search.trim() : "";
+    const filter = { role: "freelancer" };
+
+    if (search) {
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const searchPattern = new RegExp(escapedSearch, "i");
+      filter.$or = [
+        { full_name: searchPattern },
+        { username: searchPattern },
+        { email: searchPattern },
+      ];
+    }
+
+    const [users, itemCount] = await Promise.all([
+      User.find(filter)
+        .select("-password")
+        .sort({ createdAt: -1 })
+        .skip(page * pageSize)
+        .limit(pageSize),
+      User.countDocuments(filter),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: users,
+      itemCount,
+    });
+
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+export const deleteClient = async(req,res,next)=>{
+  try {
+    const {id} = req.body;
+    if (!mongoose.isValidObjectId(id)) {
+      throw new AppError(400, "Invalid moderator ID");
+    }
+    const moderator = await User.findOneAndDelete({
+      _id:id,
+      role:"client"
+    })
+    if(!moderator){
+      return res.status(404).json({message:"Client not found"})
+    }
+    return res.status(200).json({message:"Client deleted successfully"})
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+export const deleteFreelancer = async(req,res,next)=>{
+  try {
+    const {id} = req.body;
+    if (!mongoose.isValidObjectId(id)) {
+      throw new AppError(400, "Invalid moderator ID");
+    }
+    const moderator = await User.findOneAndDelete({
+      _id:id,
+      role:"freelancer"
+    })
+    if(!moderator){
+      return res.status(404).json({message:"Freelancer not found"})
+    }
+    return res.status(200).json({message:"Freelancer deleted successfully"})
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}

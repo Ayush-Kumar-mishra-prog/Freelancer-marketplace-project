@@ -19,20 +19,30 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
-import { deepOrange, deepPurple } from '@mui/material/colors';
+import { deepPurple } from '@mui/material/colors';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Edit2, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useDialogs } from '@/hooks/useDialogs/useDialogs';
 import useNotifications from '@/hooks/useNotifications/useNotification';
-import {
-  deleteOne as deleteEmployee,
-  getMany as getEmployees,
-  type Employee,
-} from './data/employees';
 import PageContainer from './PageContainer';
-import {dummyEmployeeData} from './data/dummyEmployee'
+import api from '@/lib/axios';
 
 const INITIAL_PAGE_SIZE = 10;
+
+interface Moderator {
+  _id: string;
+  full_name: string;
+  username: string;
+  email: string;
+  role: string;
+  status: string;
+  isFullTime: boolean;
+}
+
+interface ModeratorListResponse {
+  data: Moderator[];
+  itemCount: number;
+}
 
 export default function EmployeeList() {
   const pathname = usePathname();
@@ -44,9 +54,7 @@ export default function EmployeeList() {
   const pageSize = Math.max(1, Number(searchParams.get('pageSize') ?? INITIAL_PAGE_SIZE));
   const search = searchParams.get('search') ?? '';
   const [searchValue, setSearchValue] = React.useState(search);
-  const [dummyData,setDummyData] = React.useState(dummyEmployeeData)
-
-  const [rows, setRows] = React.useState<Employee[]>([]);
+  const [dataOfModerator, setDataOfModerator] = React.useState<Moderator[]>([]);
   const [rowCount, setRowCount] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<Error | null>(null);
@@ -71,10 +79,18 @@ export default function EmployeeList() {
     setError(null);
     setIsLoading(true);
     try {
-      const listData = await getEmployees({ page, pageSize, search });
-      setRows(listData.items);
-      setRowCount(listData.itemCount);
+      const response = await api.get<ModeratorListResponse>(
+        '/auth/api/v1/auth/admin/allModeraotor',
+        { params: { page, pageSize, search } },
+      );
+      if (!Array.isArray(response.data.data)) {
+        throw new Error('The moderator list response is invalid.');
+      }
+      setDataOfModerator(response.data.data);
+      setRowCount(response.data.itemCount);
     } catch (loadError) {
+      setDataOfModerator([]);
+      setRowCount(0);
       setError(loadError instanceof Error ? loadError : new Error(String(loadError)));
     } finally {
       setIsLoading(false);
@@ -91,13 +107,15 @@ export default function EmployeeList() {
     updateQuery({ search: searchValue.trim() || null, page: null });
   };
 
-  const handleDelete = async (employee: Employee) => {
-    const confirmed = await dialogs.confirm(`Do you wish to delete ${employee.name}?`);
+  const handleDelete = async (employee: Moderator) => {
+    const confirmed = await dialogs.confirm(`Do you wish to delete ${employee.full_name}?`);
     if (!confirmed) {
       return;
     }
     try {
-      await deleteEmployee(employee.id);
+      await api.delete('/auth/api/v1/auth/admin/deleteModerator', {
+        data: { id: employee._id },
+      });
       notifications.show('Employee deleted successfully.', {
         severity: 'success',
         autoHideDuration: 3000,
@@ -182,44 +200,44 @@ export default function EmployeeList() {
                   <TableHead>
                     <TableRow>
                       <TableCell>Avatar</TableCell>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Age</TableCell>
-                      <TableCell>Join date</TableCell>
-                      <TableCell>Department</TableCell>
+                      <TableCell>Fullname</TableCell>
+                      <TableCell>Username</TableCell>
+                      <TableCell>Role</TableCell>
+                      <TableCell>status</TableCell>
                       <TableCell>Full-time</TableCell>
                       <TableCell align="right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {dummyData.map((employee) => (
-                      <TableRow key={employee.id} hover>
+                    {dataOfModerator.map((employee) => (
+                      <TableRow key={employee._id} hover>
                         <TableCell><Avatar sx={{ bgcolor: deepPurple[500] }}>
-                          {employee.name.charAt(0).toUpperCase()}
+                          {employee.full_name.charAt(0).toUpperCase()}
                           </Avatar></TableCell>
                         <TableCell>
                           <Button
                             onClick={() =>
-                              router.push(`/admin/employees/${employee.id}`)
+                              router.push(`/admin/employees/${employee._id}`)
                             }
                           >
-                            {employee.name}
+                            {employee.full_name}
                           </Button>
                         </TableCell>
-                        <TableCell>{employee.age}</TableCell>
-                        <TableCell>{employee.joinDate}</TableCell>
+                        <TableCell>{employee.username}</TableCell>
                         <TableCell>{employee.role}</TableCell>
+                        <TableCell>{employee.status}</TableCell>
                         <TableCell>{employee.isFullTime ? 'Yes' : 'No'}</TableCell>
                         <TableCell align="right">
                           <IconButton
-                            aria-label={`Edit ${employee.name}`}
+                            aria-label={`Edit ${employee.username}`}
                             onClick={() =>
-                              router.push(`/admin/employees/${employee.id}/edit`)
+                              router.push(`/admin/employees/${employee._id}/edit`)
                             }
                           >
                             <Edit2 size={18} />
                           </IconButton>
                           <IconButton
-                            aria-label={`Delete ${employee.name}`}
+                            aria-label={`Delete ${employee.username}`}
                             color="error"
                             onClick={() => void handleDelete(employee)}
                           >
@@ -228,7 +246,7 @@ export default function EmployeeList() {
                         </TableCell>
                       </TableRow>
                     ))}
-                    {rows.length === 0 && (
+                    {dataOfModerator.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={7} align="center">
                           No employees found.

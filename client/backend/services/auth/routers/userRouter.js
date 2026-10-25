@@ -1,5 +1,5 @@
 import express from 'express'
-import { banUser, getMe, login, logout, refresh, register } from '../controllers/user.controller.js'
+import { banUser, createModerator, deleteModerator, getAllModerator, getMe, getSingleModerator, login, logout, refresh, register } from '../controllers/user.controller.js'
 import { checkRole } from '@ayush-kumar-mishra-prog/auth'
 import verifyToken from '../middleware/verify-token.js'
 
@@ -11,4 +11,8 @@ router.post('/refresh', refresh)
 router.get('/me', auth, getMe)
 router.post('/logout', auth, logout)
 router.post('/admin/ban/:id', auth, checkRole("admin", "moderator"), banUser)
+router.post('/admin/createEmployee',createModerator)
+router.get('/admin/allModeraotor',getAllModerator)
+router.get('/admin/moderators/:id',getSingleModerator)
+router.delete('/admin/deleteModerator',deleteModerator)
 export default router

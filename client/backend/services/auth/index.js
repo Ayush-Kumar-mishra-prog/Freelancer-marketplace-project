@@ -1,23 +1,33 @@
-import 'dotenv/config'
-import express from 'express'
-import cookieParser from 'cookie-parser'
-import { errorHandler } from '@ayush-kumar-mishra-prog/auth'
+import "dotenv/config";
+import express from "express";
+import cookieParser from "cookie-parser";
+import mongoose from "mongoose";
+import { errorHandler } from "@ayush-kumar-mishra-prog/auth";
 
-const app = express()
+const app = express();
 
-app.use(express.json())
-import connectDB from './config/db.js'
-import router from './routers/userRouter.js'
+app.use(express.json());
+
+import router from "./routers/userRouter.js";
+import { connectDB } from "../../shared/index.js";
 const port = process.env.PORT || 3001;
-app.use(cookieParser())
-connectDB()
+app.use(cookieParser());
 
-app.get('/',(req,res)=>{
-    console.log(port)
-    res.send("Auth server started")
-})
+const startServer = async () => {
+  try {
+    await connectDB(mongoose);
+    app.listen(port, () => console.log(`port ${port} is running`));
+  } catch (error) {
+    console.error("Failed to start auth service:", error);
+    process.exit(1);
+  }
+};
 
-app.use('/api/v1/auth',router)
-app.use(errorHandler)
+app.get("/", (req, res) => {
+  console.log(port);
+  res.send("Auth server started");
+});
 
-app.listen(port,()=>console.log(`port ${port} is running`))
+app.use("/api/v1/auth", router);
+app.use(errorHandler);
+startServer();

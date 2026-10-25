@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema(
       enum: ["block", "active"],
       default: "active",
     },
+    isFullTime: {
+      type: Boolean,
+     
+      default: false,
+    },
   },
   { timestamps: true },
 );

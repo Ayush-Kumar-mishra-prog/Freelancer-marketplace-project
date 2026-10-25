@@ -1,140 +1,122 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import dayjs from 'dayjs';
-import { useDialogs } from '@/hooks/useDialogs/useDialogs';
-import useNotifications from '@/hooks/useNotifications/useNotification';
-import {
-  deleteOne as deleteEmployee,
-  getOne as getEmployee,
-  type Employee,
-} from './data/employees';
-import PageContainer from './PageContainer';
-import { dummyEmployeeData } from './data/dummyEmployee';
+import * as React from "react";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import Divider from "@mui/material/Divider";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import dayjs from "dayjs";
+import { useState } from "react";
+import api from "@/lib/axios";
+import { Button } from "@/untitledui/base/buttons/button";
+
+interface SingleEmployeeType {
+  full_name: string;
+  username: string;
+  email: string;
+  role: string;
+  status: string;
+  isFullTime: boolean;
+  createdAt: string;
+}
 
 export default function EmployeeShow() {
   const { employeeId } = useParams<{ employeeId: string }>();
-  const router = useRouter();
-
-  const dialogs = useDialogs();
-  const notifications = useNotifications();
-
-  const dummyData = dummyEmployeeData.find((data) => data.id === Number(employeeId))
-
-  const [employee, setEmployee] = React.useState<Employee | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState<Error | null>(null);
-
-  const loadData = React.useCallback(async () => {
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const showData = await getEmployee(Number(employeeId));
-
-      setEmployee(showData);
-    } catch (showDataError) {
-      setError(showDataError as Error);
-    }
-    setIsLoading(false);
-  }, [employeeId]);
+  const router = useRouter()
+  const [singleDataOfModerator, setSingleDataOfModerator] = useState<SingleEmployeeType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   React.useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  const handleEmployeeEdit = React.useCallback(() => {
-    router.push(`/admin/employees/${employeeId}/edit`);
-  }, [router, employeeId]);
-
-  const handleEmployeeDelete = React.useCallback(async () => {
-    if (!employee) {
-      return;
-    }
-
-    const confirmed = await dialogs.confirm(`Do you wish to delete ${employee.name}?`);
-
-    if (confirmed) {
-      setIsLoading(true);
+    const fetchModerators = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        await deleteEmployee(Number(employeeId));
-
-        router.push('/admin/employees');
-
-        notifications.show('Employee deleted successfully.', {
-          severity: 'success',
-          autoHideDuration: 3000,
-        });
-      } catch (deleteError) {
-        notifications.show(
-          `Failed to delete employee. Reason:' ${(deleteError as Error).message}`,
-          {
-            severity: 'error',
-            autoHideDuration: 3000,
-          },
+        const response = await api.get<{ data: SingleEmployeeType }>(
+          `/auth/api/v1/auth/admin/moderators/${employeeId}`,
         );
+        if (!response.data.data) {
+          throw new Error("Employee details were not returned by the server.");
+        }
+        setSingleDataOfModerator(response.data.data);
+      } catch (fetchError) {
+        setError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : "Unable to load employee details.",
+        );
+      } finally {
+        setLoading(false);
       }
-      setIsLoading(false);
-    }
-  }, [employee, dialogs, employeeId, router, notifications]);
+    };
+    fetchModerators();
+  }, [employeeId]);
 
-  const handleBack = React.useCallback(() => {
-    router.push('/admin/employees');
-  }, [router]);
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          m: 1,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  const renderShow = React.useMemo(() => {
-    if (isLoading) {
-      return (
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            m: 1,
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      );
-    }
-    if (error) {
-      return (
-        <Box sx={{ flexGrow: 1 }}>
-          <Alert severity="error">{error.message}</Alert>
-        </Box>
-      );
-    }
+  if (error || !singleDataOfModerator) {
+    return (
+      <Alert severity="error">
+        {error ?? "Employee details are not available."}
+      </Alert>
+    );
+  }
 
-    return dummyData ? (
-      <Box sx={{ flexGrow: 1, width: '100%' }}>
-        <Grid container spacing={2} sx={{ width: '100%' }}>
+  return (
+    <>
+      <Box sx={{ flexGrow: 1, width: "100%",marginTop:"30px" }}>
+        <Grid container spacing={2} sx={{ width: "100%" }}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Paper sx={{ px: 2, py: 1 }}>
-              <Typography variant="overline">Name</Typography>
+              <Typography variant="overline">Fullname</Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {dummyData.name}
+                {singleDataOfModerator.full_name}
               </Typography>
             </Paper>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Paper sx={{ px: 2, py: 1 }}>
-              <Typography variant="overline">Age</Typography>
+              <Typography variant="overline">username</Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {dummyData.age}
+                {singleDataOfModerator.username}
+              </Typography>
+            </Paper>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Paper sx={{ px: 2, py: 1 }}>
+              <Typography variant="overline">Email</Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {singleDataOfModerator.email}
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid size={{xs:12,sm:6}}>
+            <Paper sx={{ px: 2, py: 1 }}>
+              <Typography variant="overline">Status</Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {singleDataOfModerator.status}
               </Typography>
             </Paper>
           </Grid>
@@ -142,15 +124,15 @@ export default function EmployeeShow() {
             <Paper sx={{ px: 2, py: 1 }}>
               <Typography variant="overline">Join date</Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {dayjs(dummyData.joinDate).format('MMMM D, YYYY')}
+                {dayjs(singleDataOfModerator.createdAt).format("MMMM D, YYYY")}
               </Typography>
             </Paper>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Paper sx={{ px: 2, py: 1 }}>
-              <Typography variant="overline">Department</Typography>
+              <Typography variant="overline">Role</Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {dummyData.role}
+                {singleDataOfModerator.role}
               </Typography>
             </Paper>
           </Grid>
@@ -158,60 +140,40 @@ export default function EmployeeShow() {
             <Paper sx={{ px: 2, py: 1 }}>
               <Typography variant="overline">Full-time</Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {dummyData.isFullTime ? 'Yes' : 'No'}
+                {singleDataOfModerator.isFullTime ? "Yes" : "No"}
               </Typography>
             </Paper>
           </Grid>
         </Grid>
         <Divider sx={{ my: 3 }} />
-        <Stack direction="row" spacing={2} sx={{ justifyContent: 'space-between' }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: "space-between" }}
+        >
           <Button
-            variant="contained"
-            startIcon={<ArrowLeft size={18} />}
-            onClick={handleBack}
+            iconLeading={<ArrowLeft size={18} />}
+            className='bg-purple-500' size="lg"
+            onClick={()=>router.push('/admin/employees')}
           >
             Back
           </Button>
           <Stack direction="row" spacing={2}>
             <Button
-              variant="contained"
-              startIcon={<Pencil size={18} />}
-              onClick={handleEmployeeEdit}
+            className='bg-purple-500' size="lg"
+              iconLeading={<Pencil size={18} />}
             >
               Edit
             </Button>
             <Button
-              variant="contained"
-              color="error"
-              startIcon={<Trash2 size={18} />}
-              onClick={handleEmployeeDelete}
+              iconLeading={<Trash2 size={18} />}
+              className='bg-red-500' size='lg'
             >
               Delete
             </Button>
           </Stack>
         </Stack>
       </Box>
-    ) : null;
-  }, [
-    isLoading,
-    error,
-    employee,
-    handleBack,
-    handleEmployeeEdit,
-    handleEmployeeDelete,
-  ]);
-
-  const pageTitle = `Employee ${employeeId}`;
-
-  return (
-    <PageContainer
-      title={pageTitle}
-      breadcrumbs={[
-        { title: 'Employees', path: '/admin/employees' },
-        { title: pageTitle },
-      ]}
-    >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>{renderShow}</Box>
-    </PageContainer>
+    </>
   );
 }

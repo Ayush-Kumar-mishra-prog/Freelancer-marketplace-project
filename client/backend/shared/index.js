@@ -1,0 +1,1 @@
+export { default as connectDB } from "./config/db.js";
