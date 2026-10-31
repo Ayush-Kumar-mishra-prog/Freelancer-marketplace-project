@@ -1,6 +1,6 @@
 import express from 'express'
 const app = express()
-app.use(express.json())
+
 import dotenv from 'dotenv'
 import proxy from 'express-http-proxy'
 dotenv.config()
@@ -11,6 +11,9 @@ app.use(cors({
     credentials:true
 }))
 
+app.use(express.json({limit:"10mb"}))
+app.use(express.urlencoded({extended:true,limit:"10mb"}))
+
 app.get('/',(req,res)=>{
     const ip= req.ip
     res.send("Gateway started"+ ip)
@@ -18,6 +21,7 @@ app.get('/',(req,res)=>{
 })
 
 app.use('/auth',proxy(process.env.AUTH_SERVER_URL))
+app.use('/project',proxy(process.env.PROJECT_SERVER_URL))
 
 app.listen(port,()=>{
     console.log("server started" + port)

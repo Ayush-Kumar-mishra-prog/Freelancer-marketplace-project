@@ -339,59 +339,40 @@ export const deleteModerator = async(req,res,next)=>{
 }
 
 
-export const updateModerator = async(req,res,next)=>{
-  try {
-    const {id} = req.params
-    if(!mongoose.isValidObjectId(id)){
-      return res.status(400).json({message:"Not a valid id"})
+export const updateModerator = async(req,res,next) =>{
+ try {
+  const {id} = req.params;
+  if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+    throw new AppError(400, "Moderator update data is required");
+  }
+  const {username,email,full_name,isFullTime,status} = req.body;
+  const updatedData = await User.findOneAndUpdate({
+    _id:id,
+    role:"moderator"
+  }, {
+    $set: {
+      username,
+      email,
+      full_name,
+      isFullTime,
+      status
     }
-
-    const allowedFields = [
-      "username",
-      "full_name",
-      "status",
-      "isFullTime"
-    ];
-    const updates = {};
-    for (const field of allowedFields){
-      if(req.body[field] !== undefined){
-        updates[field] = req.body[field];
-      }
-    }
-
-    if(Object.keys(updates).length === 0){
-      return res.status(400).json({
-        success:false,
-        message:"No valid fields provided for update"
-      })
-    }
-    const moderator = await User.findOneAndUpdate({
-      _id:id,
-      role:"moderator"
-    },
-    {
-      $set:updates
-    },
-    {
-      new:true,
-      runValidators:true
-    }
-  ).select("-password -refreshToken")
-  if(!moderator){
-    return res.status(404).json({
-      success:false,
-      message:"Moderator not found"
+  }, {
+    new: true,
+    runValidators: true
+  }).select("-password -refreshToken");
+  if(!updatedData){
+    return res.status(400).json({message:"Moderator not found or update failed"})
+  }else{
+    return res.status(200).json({
+      message:"Moderator updated successfully",
+      data:updatedData
     })
   }
-  return res.status(200).json({
-    success:true,
-    message:"Moderator updated successfully",
-    data:moderator,
-  })
-  } catch (error) {
-    console.log(error)
-    next(error)
-  }
+ } catch (error) {
+   console.log(error);
+   next(error);
+ }
 }
 
 

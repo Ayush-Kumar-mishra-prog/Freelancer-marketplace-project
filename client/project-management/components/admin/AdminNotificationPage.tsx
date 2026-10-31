@@ -111,6 +111,32 @@ const initialNotifications: Notification[] = [
   },
 ];
 
+ 
+
+
+     
+
+    const handleResize = (): void => {
+        checkWindowSize(window.innerWidth);
+    }; 
+
+    const checkWindowSize = (width: number): void => {
+        setWidth(width < 1024 ? { width: '100%' } : { maxWidth: '608px' });
+    }; 
+
+    useEffect(() => {
+
+        checkWindowSize(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+
+
 const getNotificationIcon = (type: NotificationType) => {
   const iconProps = {
     size: 13,
@@ -324,6 +350,8 @@ export default function NotificationsPage() {
         </Box>
       </Box>
     </Box>
+
+    
   );
 }
 

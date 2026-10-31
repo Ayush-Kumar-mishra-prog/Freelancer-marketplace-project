@@ -202,154 +202,141 @@ import { useParams, useRouter } from 'next/navigation';
 // }
 
 
-import React from 'react'
-import { dummyEmployeeData } from './data/dummyEmployee';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Box, Button, Card, CardContent, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react'
+import { Box, Button, Card, CardContent, MenuItem, Stack, TextField } from '@mui/material';
+import api from '@/lib/axios';
+import toast from 'react-hot-toast';
+
+interface Employee {
+  username: string;
+  full_name: string;
+  email: string;
+  isFullTime: boolean;
+  status: 'active' | 'block';
+}
 
 const EmployeeEdit = () => {
-     const { employeeId } = useParams<{ employeeId: string }>();
-   const router = useRouter();
-   const dummyData = dummyEmployeeData.find((data) => data.id === Number(employeeId))
-    const handleBack = React.useCallback(() => {
-       router.push('/admin/employees');
-     }, [router]);
+  const { employeeId } = useParams<{ employeeId: string }>();
+  const router = useRouter();
+  const [employee, setEmployee] = useState<Employee | null>(null);
+
+  const handleBack = React.useCallback(() => {
+    router.push('/admin/employees');
+  }, [router]);
+
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      try {
+        const res = await api.get(`/auth/api/v1/auth/admin/moderators/${employeeId}`);
+        setEmployee(res.data.data);
+      } catch (error: unknown) {
+        toast.error(error instanceof Error ? error.message : 'Failed to load employee.');
+      }
+    };
+
+    fetchEmployee();
+  }, [employeeId]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!employee) return;
+
+    try {
+      await api.put(`/auth/api/v1/auth/admin/moderator/${employeeId}`, employee);
+      toast.success('Employee updated successfully.');
+      router.push('/admin/employees');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update employee.');
+    }
+  };
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <div className=''
-            
-          >
-            <div className='max-w-4xl mt-5' >
-              <Card
-                elevation={0}
-                sx={{
-                  borderRadius: 3,
-                  border: "1px solid #e3e8f0",
-                }}
+    <div className="max-w-4xl mt-5">
+      <Card
+        elevation={0}
+        sx={{
+          borderRadius: 3,
+          border: '1px solid #e3e8f0',
+        }}
+      >
+        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+          <Box component="form" onSubmit={handleSubmit}>
+            <Stack spacing={2.5}>
+              <TextField
+                label="Full Name"
+                value={employee?.full_name ?? ''}
+                onChange={(event) => setEmployee((current) => current && {
+                  ...current,
+                  full_name: event.target.value,
+                })}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Username"
+                value={employee?.username ?? ''}
+                onChange={(event) => setEmployee((current) => current && {
+                  ...current,
+                  username: event.target.value,
+                })}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Email"
+                type="email"
+                value={employee?.email ?? ''}
+                onChange={(event) => setEmployee((current) => current && {
+                  ...current,
+                  email: event.target.value,
+                })}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Employment"
+                select
+                value={employee?.isFullTime ? 'full-time' : 'part-time'}
+                onChange={(event) => setEmployee((current) => current && {
+                  ...current,
+                  isFullTime: event.target.value === 'full-time',
+                })}
+                fullWidth
               >
-                <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-                  
-    
-                 
-    
-                  <Box component="form" >
-                    <Stack spacing={2.5}>
-                      <TextField
-                        label="Name"
-                        placeholder="Enter your Name"
-                        value={dummyData?.name}
-                        fullWidth
-                        required
-                      />
-    
-                       <TextField
-                        label="Mobile Number"
-                        type="email"
-                        placeholder="Update your Mobile Number"
-                        value={dummyData?.mobile}
-                        fullWidth
-                        required
-                      />
-    
-                      <TextField
-                        label="Email"
-                        type="email"
-                        placeholder="Update your email"
-                        value={dummyData?.email}
-                        fullWidth
-                        required
-                      />
-
-                      <TextField
-                        label="Age"
-                        type="email"
-                        placeholder="Update your Age"
-                        value={dummyData?.age}
-                        fullWidth
-                        required
-                      />
-
-                      <TextField
-                        label="Joining Date"
-                        type="date"
-                        placeholder="Update your Joining Date"
-                        value={dummyData?.joinDate}
-                        fullWidth
-                        required
-                      />
-
-                      <TextField
-                        label="Role"
-                        type="name"
-                        placeholder="Update your Role"
-                        value={dummyData?.role}
-                        fullWidth
-                        required
-                      />
-
-                      <TextField
-                        label="Full Time"
-                        type="name"
-                        placeholder="Full Time"
-                        value={dummyData?.isFullTime ? "Yes":"No"}
-                        fullWidth
-                        required
-                      />
-
-                     
-    
-                       
-    
-                    
-    
-                      
-    
-                      
-
-    
-    
-                      
-    
-                      <Box>
-                        
-    
-                        
-    
-                        
-                      </Box>
-    
-                     
-    
-                      <Stack direction="row" spacing={2}>
-                        <Button
-                          type="submit"
-                          variant="contained"
-                         
-                          size="large"
-                        >
-                          Save profile
-                        </Button>
-    
-                        <Button
-                          type="button"
-                          variant="outlined"
-                          color="warning"
-                          onClick={handleBack}
-                          
-                        >
-                          Back
-                        </Button>
-                      </Stack>
-                    </Stack>
-                  </Box>
-    
-                 
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </LocalizationProvider>
+                <MenuItem value="full-time">Full time</MenuItem>
+                <MenuItem value="part-time">Part time</MenuItem>
+              </TextField>
+              <TextField
+                label="Status"
+                select
+                value={employee?.status ?? 'active'}
+                onChange={(event) => setEmployee((current) => current && {
+                  ...current,
+                  status: event.target.value as Employee['status'],
+                })}
+                fullWidth
+              >
+                <MenuItem value="active">Active</MenuItem>
+                <MenuItem value="block">Blocked</MenuItem>
+              </TextField>
+              <Stack direction="row" spacing={2}>
+                <Button type="submit" variant="contained" size="large" disabled={!employee}>
+                  Save profile
+                </Button>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  color="warning"
+                  onClick={handleBack}
+                >
+                  Back
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 

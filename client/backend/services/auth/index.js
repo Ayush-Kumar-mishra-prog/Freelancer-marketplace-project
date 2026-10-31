@@ -7,6 +7,7 @@ import { errorHandler } from "@ayush-kumar-mishra-prog/auth";
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 import router from "./routers/userRouter.js";
 import { connectDB } from "../../shared/index.js";

@@ -13,8 +13,13 @@ import { Button, Stack, TextField } from '@mui/material'
 import FormPage from '../common/Form'
 
 const lowlight = createLowlight(common)
+interface PropsType{
+  onChange:(value:string)=>void;
+  value:string;
+  fromPreview:boolean
+}
 
-export default function RichTextEditor() {
+export default function RichTextEditor({onChange,value,fromPreview}:PropsType) {
   const [tab, setTab] = useState<'editor' | 'preview'>('editor')
     const handleReset = () => {
      alert("Reset clicked")
@@ -29,22 +34,28 @@ export default function RichTextEditor() {
       FontSize,
       CodeBlockLowlight.configure({ lowlight }),
     ],
-    content: `
-      <h1>Start writing here...</h1>
-      <p>Select some text to try <strong>bold</strong>, <em>italic</em>, colors and font sizes.</p>
-      <pre><code>console.log("hello world")</code></pre>
-    `,
+    content: value,
+    onUpdate:({editor}) =>{
+      onChange(editor.getHTML())
+    },
     editorProps: {
       attributes: {
         class: 'prose max-w-none min-h-[300px] p-4 focus:outline-none',
       },
     },
+    
   })
+  if(!editor) return null;
 
   return (
     <div className="max-w-4xl  border-l-slate-400  mx-auto ">
       {/* <TextField id="standard-basic" fullWidth label="Enter your post title" variant="standard" sx={{margin:"5px"}} /> */}
-      <FormPage />
+      
+      {
+        fromPreview && (
+<FormPage />
+        )
+      }
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
         <button
@@ -70,25 +81,7 @@ export default function RichTextEditor() {
           <Toolbar editor={editor} />
           
           <EditorContent editor={editor} />
-          <Stack direction="row" spacing={2}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      fullWidth
-                      size="large"
-                    >
-                      Create Post
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="outlined"
-                      size="large"
-                      onClick={handleReset}
-                    >
-                      Reset
-                    </Button>
-                  </Stack>
+          
           
         </>
       ) : (
